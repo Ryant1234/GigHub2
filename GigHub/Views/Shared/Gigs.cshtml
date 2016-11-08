@@ -3,6 +3,24 @@
     ViewBag.Title = "Home Page";
 }
 <h1>@Model.Heading</h1>
+
+
+@using (Html.BeginForm("Search", "Gigs"))
+{
+    <div class="form-group">
+        <div id="searchGigs" class="input group" >
+            @Html.TextBoxFor(m => m.SearchTerm, new { @class = "form-control" })
+            <span class="input-group-addon">
+                <i class="glyphicon glyphicon-search">
+
+</i>
+</span>
+        </div>
+       
+
+    </div>
+
+}
 <ul class="gigs voffset3">
     @foreach (var gig in Model.UpcomingGigs)
     {
@@ -18,23 +36,30 @@
             <div class="details">
                 <span class="artist">
                     @gig.Artist.Name
-@if (Model.ShowActions)
-{
-    <button class="btn btn-link btn-sm js-toggle-follow" data-user-id="@gig.ArtistId">
-                        Follow
 
-                    </button>
-}
+                    @if (gig.IsCanceled)
+                    {
+                        <span class="label label-warning">Canceled </span>
+
+
+                    }
+                    @if (Model.ShowActions)
+                    {
+                        <button class="btn btn-link btn-sm js-toggle-follow" data-user-id="@gig.ArtistId">
+                            Follow
+
+                        </button>
+                    }
                 </span>
 
                 <span class="genre">
                     @gig.Genre.Name
                 </span>
-                @if (Model.ShowActions)
+                @if (Model.ShowActions && !gig.IsCanceled)
                 {
                     <button data-gig-id="@gig.Id" class="btn btn-default btn-sm pull-right js-toggle-attendance">Going ?</button>
                 }
-                
+
             </div>
         </li>
     }
@@ -43,30 +68,30 @@
 @section scripts
 {
     <script>
-        $(document).ready(function() {
-            $(".js-toggle-attendance").click(function(e) {
+        $(document).ready(function () {
+            $(".js-toggle-attendance").click(function (e) {
                 var button = $(e.target);
                 $.post("/api/attendances", { gigId: button.attr("data-gig-id") })
-                    .done(function() {
+                    .done(function () {
                         button
                             .removeClass("btn-default")
                             .addClass("btn-info")
                             .text("Going");
                     })
-                    .fail(function() {
+                    .fail(function () {
                         alert("Something failed!");
                     });
             });
 
-            $(".js-toggle-follow").click(function(e) {
+            $(".js-toggle-follow").click(function (e) {
                 var button = $(e.target);
                 $.post("/api/followings", {
-                        followeeId: button.attr("data-user-id")
-                    })
-                    .done(function() {
+                    followeeId: button.attr("data-user-id")
+                })
+                    .done(function () {
                         button.text("Following");
                     })
-                    .fail(function() {
+                    .fail(function () {
                         alert("Something failed");
                     });
             });
